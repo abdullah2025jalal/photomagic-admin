@@ -1,0 +1,30 @@
+name: photomagic_admin
+description: "PhotoMagic Admin — account management panel for PhotoMagic (Firebase RTDB)."
+publish_to: 'none'
+version: 0.4.3+10
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  crypto: ^3.0.3
+
+  # --- Runtime-switchable light/dark theme controller ---
+  flutter_riverpod: ^2.5.1
+
+  # --- Persisting the theme choice across restarts ---
+  shared_preferences: ^2.3.2
+
+  # --- Firebase Realtime Database backend (/accounts/{username}) ---
+  firebase_core: ^3.6.0
+  firebase_database: ^11.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
