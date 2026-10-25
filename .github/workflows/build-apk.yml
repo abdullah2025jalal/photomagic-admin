@@ -1,0 +1,62 @@
+name: Build Release APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Package APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: 'stable'
+          cache: true
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Locate and Rename APK
+        run: |
+          mkdir -p build-output
+          APK_PATH=$(find build/app/outputs/flutter-apk/ -name "*.apk" | head -n 1)
+          if [ -f "$APK_PATH" ]; then
+            cp "$APK_PATH" build-output/PhotoMagic-Admin-Release.apk
+            echo "APK generated successfully at build-output/PhotoMagic-Admin-Release.apk"
+          else
+            echo "Release APK not found, checking debug APK fallback..."
+            flutter build apk --debug
+            cp $(find build/app/outputs/flutter-apk/ -name "*.apk" | head -n 1) build-output/PhotoMagic-Admin-Debug.apk
+          fi
+
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhotoMagic-Admin-Release-APK
+          path: build-output/*.apk
+          retention-days: 30
