@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Firebase Realtime Database sync (/accounts/{username}). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -38,6 +39,22 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+
+    <!-- The bundled google-services.json has NO "database_url" entry (the
+         Realtime Database is provisioned in europe-west1). If Firebase's
+         auto-init provider created the DEFAULT app from it, its options
+         would lack the database URL and every RTDB operation fails
+         ("الجهاز غير متصل بالإنترنت") — and passing corrected Dart options
+         afterwards would throw [core/duplicate-app]. Disabling the provider
+         makes lib/main.dart's
+         `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)`
+         — whose firebase_options.dart DOES carry databaseURL — the single,
+         working source of truth on every platform. -->
+    <provider
+        android:name="com.google.firebase.provider.FirebaseInitProvider"
+        android:authorities="${applicationId}.firebaseinitprovider"
+        tools:node="remove" />
+
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.

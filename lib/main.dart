@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,8 +20,14 @@ Future<void> main() async {
   // the owner sees the reason instead of a silent empty list.
   try {
     await Firebase.initializeApp(
-      // Web has no native config file: pass the generated Dart options.
-      options: kIsWeb ? DefaultFirebaseOptions.currentPlatform : null,
+      // Always pass the Dart options, on every platform: the Android
+      // google-services.json has NO "database_url" entry (the Realtime
+      // Database lives in europe-west1), so the native plugin alone cannot
+      // resolve FirebaseDatabase.instance and every operation reports
+      // "الجهاز غير متصل بالإنترنت". DefaultFirebaseOptions carries the
+      // explicit databaseURL, which fixes both the offline banner and the
+      // persisting of created accounts.
+      options: DefaultFirebaseOptions.currentPlatform,
     );
   } on FirebaseException catch (e) {
     runApp(_FatalFirebaseApp(message: '${e.code}: ${e.message}'));
