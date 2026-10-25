@@ -31,9 +31,22 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.7'
+          flutter-version: '3.47.8'
           channel: 'stable'
           cache: true
+
+      - name: Inject Firebase Config
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ vars.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON_B64" ]; then
+            echo "ERROR: repository variable GOOGLE_SERVICES_JSON_B64 is not set." >&2
+            echo "The APK would be built without Firebase and the accounts panel would fail." >&2
+            exit 1
+          fi
+          echo "$GOOGLE_SERVICES_JSON_B64" | base64 --decode > android/app/google-services.json
+          echo "Injected android/app/google-services.json"
+          grep -o '"package_name"[^,]*' android/app/google-services.json | head -n 3
 
       - name: Get Dependencies
         run: flutter pub get
@@ -60,3 +73,12 @@ jobs:
           name: PhotoMagic-Admin-Release-APK
           path: build-output/*.apk
           retention-days: 30
+
+      - name: Create GitHub Release (On Tag Push)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build-output/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
