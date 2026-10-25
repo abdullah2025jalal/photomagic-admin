@@ -38,22 +38,18 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-    </application>
 
-    <!-- The bundled google-services.json has NO "database_url" entry (the
-         Realtime Database is provisioned in europe-west1). If Firebase's
-         auto-init provider created the DEFAULT app from it, its options
-         would lack the database URL and every RTDB operation fails
-         ("الجهاز غير متصل بالإنترنت") — and passing corrected Dart options
-         afterwards would throw [core/duplicate-app]. Disabling the provider
-         makes lib/main.dart's
-         `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)`
-         — whose firebase_options.dart DOES carry databaseURL — the single,
-         working source of truth on every platform. -->
-    <provider
-        android:name="com.google.firebase.provider.FirebaseInitProvider"
-        android:authorities="${applicationId}.firebaseinitprovider"
-        tools:node="remove" />
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="${applicationId}.firebaseinitprovider"
+            tools:node="remove" />
+        <!-- ^ Firebase auto-init DISABLED: google-services.json carries no
+             database_url (RTDB lives in europe-west1), so the auto-init app
+             cannot resolve FirebaseDatabase.instance and Dart-corrected
+             options would be rejected with [core/duplicate-app]. lib/main.dart
+             initializes Firebase from firebase_options.dart (which DOES carry
+             databaseURL) — the single source of truth on every platform. -->
+    </application>
 
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
